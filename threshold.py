@@ -41,11 +41,11 @@ def adaptive_thresholding(img):
     images = [img, th1, th2, th3]
 
     #UNCOMMENT to display the different types of threshold images
-    #for i in xrange(4):
-    #    plt.subplot(2,2,i+1),plt.imshow(images[i],'gray')
-    #    plt.title(titles[i])
-    #    plt.xticks([]),plt.yticks([])
-    #plt.show()
+    for i in xrange(4):
+        plt.subplot(2,2,i+1),plt.imshow(images[i],'gray')
+        plt.title(titles[i])
+        plt.xticks([]),plt.yticks([])
+    plt.show()
 
     return img, th1, th2, th3
 
@@ -95,9 +95,27 @@ def color_thresh(orig_img, thresh_img):
 
     """
     for i in range(orig_img.shape[0]):
-    for j in range(orig_img.shape[1]):
-        if thresh_img[i,j] == 0:
-            orig_img[i,j] = 5
+        for j in range(orig_img.shape[1]):
+            if thresh_img[i,j] == 0:
+                orig_img[i,j] = 5
+
+    return orig_img
+
+def fillout(img):
+    h, w = img.shape[:2]
+    mask = np.zeros((h+2, w+2), np.uint8)
+
+    im_floodfill = img
+
+    # Floodfill from point (0, 0)
+    cv2.floodFill(im_floodfill, mask, (0,0), 255);
+ 
+    # Invert floodfilled image
+    im_floodfill_inv = cv2.bitwise_not(im_floodfill)
+ 
+    # Combine the two images to get the foreground.
+    im_out = img | im_floodfill_inv
+    return im_out
 
 
 
@@ -121,11 +139,26 @@ if __name__ == "__main__":
     red_img, red_th1, red_th2, red_th3 = adaptive_thresholding(red)
     green_img, green_th1, green_th2, green_th3 = adaptive_thresholding(green)
     blue_img, blue_th1, blue_th2, blue_th3 = adaptive_thresholding(blue)
-
     
-    img1 = cv2.imread(image_name)
-    img1 = color_thresh(img1, greenth1)
+    #h, w = green_th1.shape[:2]
+    #mask = np.zeros((h+2, w+2), np.uint8)
 
+    #im_floodfill = red_th1
+
+    # Floodfill from point (0, 0)
+    #cv2.floodFill(im_floodfill, mask, (0,0), 255);
+ 
+    # Invert floodfilled image
+    #im_floodfill_inv = cv2.bitwise_not(im_floodfill)
+ 
+    # Combine the two images to get the foreground.
+    #im_out = red_th1 | im_floodfill_inv
+    #im_out = fillout(green_th2)
+
+    #cv2.imshow("hi", im_out)
+   # cv2.waitKey()
+    img1 = cv2.imread(image_name)
+    img1 = color_thresh(img1, red_th2)
     watershed(img1)
 
 
