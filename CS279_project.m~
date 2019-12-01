@@ -29,19 +29,25 @@ figure(7)
 imshowpair(redChannel, BWred, 'montage')
 hold on 
 %%
-% Get centroid data for output
-  BWGreen = imfill(greenChannel, 'holes');
-  BWGreen= imclearborder(BWGreen);
-  stats = regionprops('table', BWGreen,'Centroid', 'Area');
+  BWred = imfill(BWred, 'holes');
+  BWred= imclearborder(BWred);
+  stats = regionprops('table', BWred,'Centroid', 'Area');
   centroid_x = stats.Centroid(:,1);
   centroid_y = stats.Centroid(:,2);
   area = stats.Area
-  
   t = table(centroid_x, centroid_y, area)
   writetable(t,'centroid_output.csv');
   
+  
+  %t.Centroid
+  %t = struct2table(stats)
+  %writetable(t,'regionprops.csv');
+  
   %%SAVE info to file for later reference
-  imshow(BWGreen);
+  imshow(BWred);
+  stats.Centroid
+  stats.Centroid(:,1)
+  %t = struct2table(stats.Centroid)
   %%
   figure(8)
   imshow(BWred)
