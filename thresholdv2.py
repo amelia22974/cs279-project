@@ -10,7 +10,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageOps, ImageEnhance
 import cv2
 from matplotlib import pyplot as plt
 #import segmentImage
-#import matlab.engine
+import matlab.engine
 
 def split_image(image_name):
     """
