@@ -1,0 +1,386 @@
+
+%% Load the image
+clear all
+close all
+A = imread('/Users/sidsd27/Downloads/snap.jpg');
+imshow(A)
+hold on
+figure(1)
+title('Here is the original image')
+imshow(A);
+%% Split channels into RGB
+RC = A(:,:,1); % Red channel
+GC = A(:,:,2); % Green channel
+BC = A(:,:,3); %blueChannel
+
+%% User, select your region of interest 
+ % Red channel
+     
+figure, imshow(A)
+h = drawfreehand;
+mask= createMask(h,A);
+imshow(mask);
+hold on 
+RC(~mask) = false;
+BC(~mask) = false;
+GC(~mask) = false;
+figure(2) 
+title('Here is the cropped image - red and green channel')
+imshowpair(RC,GC, 'montage')
+hold on 
+
+%% Image pre-processing steps
+
+% Sharpen all 3  channels
+% Note that 'Radius' controls the number of edge pixels that are being sharpened
+% 'Amount' controls the sensitivity
+RC = imsharpen(RC, 'Radius', 4, 'Amount', 1);
+GC = imsharpen(GC,'Radius', 4, 'Amount', 1);
+BC = imsharpen(BC,'Radius', 4, 'Amount', 1);
+figure(3)
+title('Here is the sharpened image')
+imshowpair(RC, GC, 'montage'); %Here's a sample of the red and green for your amusement
+hold on
+%% Now employ imadjust.
+%maps the intensity values in grayscale image I
+%to new values in J. By default, imadjust saturates the bottom 1% and the top 1% of all pixel values.
+%This operation increases the contrast of the output image J.
+%Red channel first
+
+JRC = imadjust(RC);
+figure(4)
+title('Intensity adjusted- red')
+imshowpair(RC, JRC, 'montage')
+hold on
+
+%Red channel first
+
+JBC = imadjust(BC);
+figure(5)
+title('Intensity adjusted- blue')
+imshowpair(BC, JBC, 'montage')
+hold on
+
+%Red channel first
+
+JGC = imadjust(GC);
+figure(6)
+title('Intensity adjusted- green')
+imshowpair(GC, JGC, 'montage')
+hold on
+
+
+%% Now, for some denoising and watershed algorithming
+%Let's get this red
+figure(5)
+thresh = graythresh(JRC);
+JRC= wiener2(JRC);
+JRC = imbinarize(JRC, thresh);
+D = -bwdist(~JRC);
+L = watershed(D);
+JRC(L==0) = 0;
+JRC= imclearborder(JRC);
+JRC = imfill(JRC, 'holes');
+title('fully processed red')
+imshowpair(A, JRC, 'montage');
+hold on
+%%
+figure(6) % Now for the green. Happy St.Pat's
+thresh = graythresh(JGC);
+JGC= wiener2(JGC);
+JGC = imbinarize(JGC, thresh);
+D = -bwdist(~JGC);
+L = watershed(D);
+JGC(L==0) = 0;
+JGC= imclearborder(JGC);
+JGC = imfill(JGC, 'holes');
+title('fully processed green')
+imshowpair(A, JGC, 'montage');
+
+hold on
+%%
+figure(7) % Now for the blue, just like my mood.
+thresh = graythresh(JBC);
+JBC= wiener2(JBC);
+JBC = imbinarize(JBC, thresh);
+D = -bwdist(~JBC);
+L = watershed(D);
+JBC(L==0) = 0;
+JBC= imclearborder(JBC);
+JBC = imfill(JBC, 'holes');
+title('fully processed blue')
+imshowpair(A, JBC, 'montage');
+
+hold on
+
+
+%Don't freak out if you see too many centroids, could just be your channel
+%% Red Centroids
+
+statsR = regionprops('table', JRC,'Centroid', 'Area');
+figure(8)
+imshow(JRC)
+hold on
+plot(statsR.Centroid(:,1), statsR.Centroid(:,2), 'r*');
+hold off
+figure(9)
+imshow(A);
+
+%% Green Centroids
+statsG = regionprops('table', JGC,'Centroid', 'Area');
+figure(10)
+imshow(JGC)
+hold on
+plot(statsG.Centroid(:,1), statsG.Centroid(:,2), '.');
+hold off
+figure(11)
+imshow(A);
+
+%% Blue Centroids
+
+statsB = regionprops('table', JBC,'Centroid', 'Area');
+figure(12)
+imshow(JBC)
+hold on
+plot(statsB.Centroid(:,1), statsB.Centroid(:,2), 'r*');
+hold off
+figure(13)
+imshow(A);
+
+figure(14)
+imhist(statsB.Area);
+%%
+% So, now we have this really basic information about the images
+% Our next step is to idenitfy dendrites with considerable accuracy.
+% We first do some simple processing on the image to maximise sensitivity. 
+
+img = imread('dendritetest.png');
+img= imsharpen(img, 'Radius', 4, 'Amount', 1.5);
+A = img;
+
+%Select your channels here. We've eliminates irrelevant ones. This is done
+%manually as of now
+A(:,:,2)=0;
+A(:,:,3) = 0;
+
+% Here we do a k means based segmentation using 6 clusters 
+[L,C] = imsegkmeans(A,6);
+A = label2rgb(L,im2double(C));
+
+%%    
+%Multiple iterations of gaussian filtering at a low SD to preserve edges we want 
+% but eliminate all the noise in the image.
+for i =1:800
+    A = imgaussfilt(A,1);
+end
+
+%%
+%Use the fibermetric algorithm to identify dendrites based on tubularity and then process 
+% image accordingly
+
+C=A;
+A = fibermetric(A,'ObjectPolarity','bright');
+A(~A) = true;
+
+%Here we threshold our images 
+thresh = graythresh(A(:,:,1));
+A = imbinarize(A(:,:,1), thresh);
+A=imfill(A, 16);
+A = imcomplement(A);
+
+
+%% 
+%Creates a structural object and uses it to dilate the image
+se = strel('disk', 1, 4);
+A = imdilate(A, se);
+
+
+%% 
+%Creates a skeleton of the image and thins it
+
+skel = bwskel(A, 'MinBranchLength', 500);
+skel = imclose(skel,se);
+skel = bwmorph(A, 'thin', Inf); 
+
+
+%%
+%Geodesic distance transform 
+B = bwmorph(skel, 'branchpoints');
+E = bwmorph(skel, 'endpoints');
+[y,x] = find(E);
+B_loc = find(B);
+Dmask = false(size(skel));
+for k = 1:numel(x)
+    D = bwdistgeodesic(skel,x(k),y(k));
+    distanceToBranchPt = min(D(B_loc));
+    Dmask(D < distanceToBranchPt) =true;
+end
+skelD = skel - Dmask;
+
+%%
+% A bunch of other processing to get rid of spurious dedndrites that don't
+% fit our criteria
+figure(6)
+skelD = bwmorph(skelD, 'close', 5);
+skelD = bwmorph(skelD, 'fill', 5);
+skelD = bwmorph(skelD, 'bridge', 5);
+skelD = bwmorph(skelD, 'spur');
+skelD = bwmorph(skelD, 'hbreak');
+title('Here is a comparison between our final map and the original image')
+imshowpair(skelD, img, 'montage');
+
+%% Our next goal is to find some way of quanitfying dendiritic arborization in a way that might be useful to researchers 
+%Let's make a GUI for this
+sz = size(skelD);
+myData.Units = 'pixels';
+myData.MaxValue = hypot(sz(1),sz(2));
+myData.Colormap = hot;
+myData.ScaleFactor = 1;
+
+hIm = imshow(skelD);
+
+hIm.ButtonDownFcn = @(~,~) startDrawing(hIm.Parent,myData);
+function startDrawing(hAx,myData)
+
+% Create a line ROI object. Specify the initial color of the line and
+% store the |myData| structure in the |UserData| property of the ROI.
+h = images.roi.Line('Color',[0, 0, 0.5625],'UserData',myData);
+
+% Set up a listener for movement of the line ROI. When the line ROI moves,
+% the |updateLabel| callback updates the text in the line ROI label and
+% changes the color of the line, based on its length.
+addlistener(h,'MovingROI',@updateLabel);
+
+% Set up a listener for clicks on the line ROI. When you click on the line
+% ROI, the |updateUnits| callback opens a GUI that lets you specify the
+% known distance in real-world units, such as, meters or feet.
+addlistener(h,'ROIClicked',@updateUnits);
+
+% Get the current mouse location from the |CurrentPoint| property of the
+% axes and extract the _x_ and _y_ coordinates.
+cp = hAx.CurrentPoint;
+cp = [cp(1,1) cp(1,2)];
+
+% Begin drawing the ROI from the current mouse location. Using the
+% |beginDrawingFromPoint| method, you can draw multiple ROIs.
+h.beginDrawingFromPoint(cp);
+
+% Add a custom option to the line ROI context menu to delete all existing
+% line ROIs.
+c = h.UIContextMenu;
+uimenu(c,'Label','Delete All','Callback',@deleteAll);
+
+end
+
+function updateLabel(src,evt)
+
+% Get the current line position.
+pos = evt.Source.Position;
+
+% Determine the length of the line.
+diffPos = diff(pos);
+mag = hypot(diffPos(1),diffPos(2));
+
+% Choose a color from the color map based on the length of the line. The
+% line changes color as it gets longer or shorter.
+color = src.UserData.Colormap(ceil(64*(mag/src.UserData.MaxValue)),:);
+
+% Apply the scale factor to line length to calibrate the measurements.
+mag = mag*src.UserData.ScaleFactor;
+
+% Update the label.
+set(src,'Label',[num2str(mag,'%30.1f') ' ' src.UserData.Units],'Color',color);
+
+end
+
+function updateUnits(src,evt)
+
+% When you double-click the ROI label, the example opens a popup dialog box
+% to get information about the actual distance. Use this information to
+% scale all line ROI measurements.
+if strcmp(evt.SelectionType,'double') && strcmp(evt.SelectedPart,'label')
+
+    % Display the popup dialog box.
+    answer = inputdlg({'Known distance','Distance units'},...
+        'Specify known distance',[1 20],{'10','meters'});
+
+    % Determine the scale factor based on the inputs.
+    num = str2double(answer{1});
+
+    % Get the length of the current line ROI.
+    pos = src.Position;
+    diffPos = diff(pos);
+    mag = hypot(diffPos(1),diffPos(2));
+
+    % Calculate the scale factor by dividing the known length value by the
+    % current length, measured in pixels.
+    scale = num/mag;
+
+    % Store the scale factor and the units information in the |myData|
+    % structure.
+    myData.Units = answer{2};
+    myData.MaxValue = src.UserData.MaxValue;
+    myData.Colormap = src.UserData.Colormap;
+    myData.ScaleFactor = scale;
+
+    % Reset the data stored in the |UserData| property of all existing line
+    % ROI objects. Use |findobj| to find all line ROI objects in the axes.
+    hAx = src.Parent;
+    hROIs = findobj(hAx,'Type','images.roi.Line');
+    set(hROIs,'UserData',myData);
+
+    % Update the label in each line ROI object, based on the information
+    % collected in the input dialog.
+    for i = 1:numel(hROIs)
+
+        pos = hROIs(i).Position;
+        diffPos = diff(pos);
+        mag = hypot(diffPos(1),diffPos(2));
+
+        set(hROIs(i),'Label',[num2str(mag*scale,'%30.1f') ' ' answer{2}]);
+
+    end
+
+    % Reset the |ButtonDownFcn| callback function with the current |myData|
+    % value.
+    hIm = findobj(hAx,'Type','image');
+    hIm.ButtonDownFcn = @(~,~) startDrawing(hAx,myData);
+
+end
+
+end
+
+%%
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
