@@ -1,7 +1,8 @@
 # FILE: threshold.py
-# This file takes a fluorescence microscopy image of cells labelled with antibodies and thresholds based 
-# on the user's desired color (eventually).
-
+# This file takes a fluorescence microscopy image of cells labelled with antibodies and will eventually calculate
+# number of puncta.
+# WE DECIDED TO SWITCH TO IMPLEMENTATION IN MATLAB BECAUSE THE MATLAB TO PYTHON API IS EXTREMELY SLOW AND NOT 
+# VERY PRACTICAL FOR REAL USE OF OUR TOOL.
 import numpy as np
 import random
 import math
@@ -9,7 +10,6 @@ import PIL
 from PIL import Image, ImageDraw, ImageFilter, ImageOps, ImageEnhance
 import cv2
 from matplotlib import pyplot as plt
-#import segmentImage
 import matlab.engine
 
 def split_image(image_name):
@@ -55,9 +55,6 @@ def fillout(img):
     im_out = img | im_floodfill_inv
     return im_out
 
-
-##THE CUT OFF SHOULD REALLY BE DYNAMIC, DEPENDING ON HOW MUCH BLEEDING THERE IS BETWEEN CHANNELS, WHICH IS 
-# DEPENDENT ON THE PARTICULAR SAMPLE. 
 def preprocess(img, cutoff=220):
 
     im = ImageOps.autocontrast(img, 100, 0)
@@ -114,45 +111,17 @@ if __name__ == "__main__":
 
     # load image from command line
     import sys
-    # for now we just want an image path as input
-    #if len(sys.argv) != 2:
-    #    print("usage: {} <image_file>".format(sys.argv[0]))
     image_name = sys.argv[1]
-    #color = sys.argv[2]
 
-    #eng = matlab.engine.start_matlab()
-    #eng.quit()
 
     img = Image.open(image_name)
 
-    #plt.figure(figsize=(10,10))
-    #plt.subplot(1,2,1),plt.imshow(img)
-    #plt.show()
     print "Splitting channels..."
     red, green, blue = split_image(img)
-    #red.show()
-    #green.show()
-    #blue.show()
-
-    #if color == "red":
-    #    color2 = preprocess(red)
-    #elif color == "green":
-    #    color2 = preprocess(green)
-    #elif color == "blue":
-    #    color2 = preprocess(blue)
 
     red2 = preprocess(red)
     green2 = preprocess(green)
     blue2 = preprocess(blue)
-
-    #cv2.imshow("green", green2)
-    #cv2.waitKey()
-    #green2.imshow()
-
-    # turn image channels into numpy arrays accessible to cv2 functions
-    #red = np.array(red) 
-    #blue = np.array(blue)
-    #green = np.array(green)
 
     img1 = cv2.imread(image_name)
     clr_thresh = color_thresh(img1, green2)
@@ -182,14 +151,10 @@ if __name__ == "__main__":
     cv2.imwrite('green_out.png',greenk)
 
     #Load up the MATLAB engine
-    #print "Opening MATLAB"
-    #eng = matlab.engine.start_matlab()
-    #print "Matlab takes a long time to open!"
-
-    #img = eng.imread('out.png')
-
-    #level = eng.graythresh(img);
-    #binary = eng.imbinarize(img, level)
+    print "Opening MATLAB"
+    eng = matlab.engine.start_matlab()
+    print "Matlab takes way too long to open and execute functions!"
+    r = eng.imread()
 
     #g_level = eng.graythresh(green_img);
     #green_b = eng.imbinarize(blue_img, g_level)
@@ -198,8 +163,6 @@ if __name__ == "__main__":
     #blue_b = eng.imbinarize(green_img, b_level)
 
     #b = eng.imfill(binary, 'holes')
-    #eng.imshow(binary)
-    #print "Got here"
     #b = eng.imclearborder(b)
     #print "Got past imclearborder"
     #stats = eng.regionprops('table', b,'Centroid', 'Area')
@@ -208,13 +171,8 @@ if __name__ == "__main__":
     #roi = eng.drawfreehand()
     #level = eng.graythresh(redChannel);
     #BW = eng.imbinarize(img, 50);
-   # eng.quit()
+    eng.quit()
 
-    
-    #segmentImage.segmentImage(img1)
-    #watershed(img1)
-    #im = Image.fromarray(img1, mode='L')
-    #im.show()
 
 
 
