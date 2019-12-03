@@ -18,3 +18,7 @@ The repository includes:
 Package Requirements in MATLAB:
 - Image Processing Toolbox
 - Machine Learning Toolbox
+
+
+For soma detection, please see 
+https://www.mathworks.com/matlabcentral/fileexchange/30805-maximum-inscribed-circle-using-distance-transform
