@@ -6,7 +6,7 @@ A = imread('/Users/sidsd27/Downloads/snap.jpg');
 
 prompt = 'What color are the puncta you wish to quanitfy? ';
 str = input(prompt,'s');
-if isempty(str) or
+if isempty(str) 
     str = 'green';
 end
 imshow(A)
@@ -103,7 +103,7 @@ elseif strcmpi(str1, 'no')
     JGC= imclearborder(JGC);
     JGC = imfill(JGC, 'holes');
     
- %% % Now for the blue, just like my mood.
+    %% % Now for the blue, just like my mood.
     
     %First some standard denoising of the pixels
     thresh = graythresh(JBC);
@@ -121,7 +121,7 @@ elseif strcmpi(str1, 'no')
     JBC= imclearborder(JBC);
     JBC = imfill(JBC, 'holes');
     %Don't freak out if you see too many centroids, could just be your channel
-%% Red Centroids
+    %% Red Centroids
     if strcmpi(str, 'red')
         statsR = regionprops('table', JRC,'Centroid', 'Area');
         figure(8)
@@ -132,7 +132,9 @@ elseif strcmpi(str1, 'no')
         
         figure(9)
         imshow(A);
+        
         %%Green Centroids
+        
     elseif strcmpi(str, 'green')
         statsG = regionprops('table', JGC,'Centroid', 'Area');
         figure(10)
@@ -155,7 +157,7 @@ elseif strcmpi(str1, 'no')
         figure(13)
         imshow(A);
     end
-end
+
 %% Here are some stats
 
 if strcmpi(str, 'green')
@@ -166,10 +168,10 @@ if strcmpi(str, 'green')
     histogram(statsG.Area,5);
     xlabel('area')
     ylabel('number of puncta');
-end
 
 
-if strcmpi(str, 'red')
+
+elseif strcmpi(str, 'red')
     disp('Number of puncta of selected channel = ')
     disp(length(statsR.Area));
     figure(14)
@@ -179,10 +181,10 @@ if strcmpi(str, 'red')
     xlabel('area')
     ylabel('number of puncta');
     imhist(statsR.Area);
-end
 
 
-if strcmpi(str, 'blue')
+
+elseif strcmpi(str, 'blue')
     disp('Number of puncta of selected channel')
     disp(length(statsB.Area));
     figure(14)
@@ -192,4 +194,5 @@ if strcmpi(str, 'blue')
     histogram(statsB.Area,5);
     xlabel('area')
     ylabel('number of puncta');
+end
 end
