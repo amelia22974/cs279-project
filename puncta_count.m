@@ -201,11 +201,11 @@ elseif strcmpi(str, 'blue')
     ylabel('number of puncta');
 end
 
- %Colocalization of puncta 
- imwrite(RC, 'out/red.tif')
- imwrite(GC, 'out/green.tif')
- imwrite(BC, 'out/blue.tif')
+%Colocalization of puncta 
+imwrite(RC, 'out/red.tif')
+imwrite(GC, 'out/green.tif')
+imwrite(BC, 'out/blue.tif')
  
- %Adjust the files here depending on what channels you're interested in
- scatterOutput = CLC('out/red.tif','out/green.tif',[],2,'hot',1,1); 
+%Adjust the files here depending on what channels you're interested in
+scatterOutput = CLC('out/red.tif','out/blue.tif',[],2,'hot',1,1); 
 

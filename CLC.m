@@ -63,7 +63,7 @@ function scatterOutput = CLC(img1,pic2,scale,numCol, ...
     colormap(Colours); 
     xlabel('img1 brightness (au)')
     ylabel('pic2 brightness (au)')
-    title('Cytofluorogram')
+    title('Colocalization')
     
     % adds line of best fit if specified
     if line == 1; 
