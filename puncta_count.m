@@ -1,4 +1,4 @@
-%% Load the image
+% Load the image
 A = imgetfile();
 A = imread(A);
 
@@ -19,14 +19,13 @@ RC = A(:,:,1); % Red channel
 GC = A(:,:,2); % Green channel
 BC = A(:,:,3); % Blue channel
 
+%We zero out low signals so they don't mess up the signals.
 RC(RC < 70) = 0;
 GC(GC < 70) = 0;
 BC(BC < 70) = 0;
 
-%FIX BUG HERE RELATED TO ZEROED MATRIX
-
 % User, select your region of interest
-neuritetask = menu('Do you wish to specify a ROI?', 'Yes', 'No')
+neuritetask = menu('Do you wish to specify a ROI?', 'Yes', 'No');
 
 if neuritetask == 1
     figure(1)
@@ -203,9 +202,10 @@ elseif strcmpi(str, 'blue')
 end
 
  %Colocalization of puncta 
- imwrite(RC, 'red.tif')
- imwrite(GC, 'green.tif')
- imwrite(BC, 'blue.tif')
-    
- scatterOutput = CLC('red.tif','green.tif',[],2,'hot',1,1); 
+ imwrite(RC, 'out/red.tif')
+ imwrite(GC, 'out/green.tif')
+ imwrite(BC, 'out/blue.tif')
+ 
+ %Adjust the files here depending on what channels you're interested in
+ scatterOutput = CLC('out/red.tif','out/green.tif',[],2,'hot',1,1); 
 
