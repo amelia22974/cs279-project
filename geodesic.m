@@ -2,7 +2,7 @@
 % So, now we have this really basic information about the images
 % Our next step is to idenitfy dendrites with considerable accuracy.
 % We first do some simple processing on the image to maximise sensitivity. 
-A = imgetfile()
+A = imgetfile();
 img = imread(A);
 img= imsharpen(img, 'Radius', 4, 'Amount', 1.5);
 A = img;
@@ -124,7 +124,7 @@ disp(sum(logical==1));
 % Our next goal is to find some way of quanitfying dendiritic arborization in a way that might be useful to researchers 
 while(1)
     
-    neuritetask = menu('Do you want to select a neurite? Only select along the neurite skeleton! Length will appear in your command line.', 'Yes', 'No')
+    neuritetask = menu('Do you want to select a neurite? Only select along the neurite skeleton! Length will appear in your command line.', 'Yes', 'No');
     
     %Close the program if the user doesn't want to quantify the length of
     %any more neurites.
