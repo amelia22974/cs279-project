@@ -1,4 +1,5 @@
-A = imread('/Users/ianwoodward/Documents/GitRepos/cs279-project/imgs/trial1.jpg');
+%A = imread('/Users/ianwoodward/Documents/GitRepos/cs279-project/imgs/trial1.jpg');
+A = imgetfile();
 imshow(A);
 redChannel = A(:,:,1); % Red channel
 greenChannel = A(:,:,2); % Green channel
@@ -13,8 +14,6 @@ figure(3)
 imshow(blueChannel);
 hold on 
 
-%% 
-
 level = graythresh(greenChannel);
 BWgreen = imbinarize(greenChannel, level);
 BWred = imbinarize(redChannel, level);
@@ -28,7 +27,7 @@ hold on
 figure(7)
 imshowpair(redChannel, BWred, 'montage')
 hold on 
-%%
+
 % Get centroid data for output
   BWGreen = imfill(greenChannel, 'holes');
   BWGreen= imclearborder(BWGreen);
@@ -42,7 +41,7 @@ hold on
   
   %%SAVE info to file for later reference
   imshow(BWGreen);
-  %%
+
   figure(8)
   imshow(BWred)
   hold on

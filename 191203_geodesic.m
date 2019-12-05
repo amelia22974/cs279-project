@@ -1,31 +1,29 @@
-%%
+%% NEURITE MAPPING
 % So, now we have this really basic information about the images
 % Our next step is to idenitfy dendrites with considerable accuracy.
 % We first do some simple processing on the image to maximise sensitivity. 
 clear all 
 close all
 
-img = imread('/Users/sidsd27/Downloads/test2.jpg');
+A = imgetfile()
+img = imread(A);
 img= imsharpen(img, 'Radius', 4, 'Amount', 1.5);
 A = img;
 imshow(img);
 
-prompt = 'What color is your cell-fill marker? ';
-str = input(prompt,'s');
-if isempty(str) or
-    str = 'red';
-end
+color = menu('What color are the puncta you wish to quantify?','Red','Green', 'Blue');
+
 %Select your channels here. We've eliminates irrelevant ones. This is done
 %manually as of now
-if strcmpi(str, 'red')
+if color == 1
     m= 1;
     n = 2
     o =3
-elseif strcmpi(str, 'green')
+elseif color == 2
     m= 2;
     n = 3;
     o =1;
-elseif strcmpi(str, 'blue')
+elseif color == 3
     m= 3;
     n = 2;
     o =1;
@@ -33,30 +31,22 @@ end
 A(:,:,n)=0;
 A(:,:,o) = 0;
 
+msgbox('Running a bunch of processing steps --> be patient!')
+
 % Here we do a k means based segmentation using 6 clusters 
 [L,C] = imsegkmeans(A,6);
 A = label2rgb(L,im2double(C));
-imshow(A)
+%imshow(A)
 hold on 
 close all
-
-
-
-%%    
+   
 %Multiple iterations of gaussian filtering at a low SD to preserve edges we want 
 % but eliminate all the noise in the image.
 for i =1:1000
     A = imgaussfilt(A,1);
 end
-imshow(A)
-%% Soma detection pre-processing
+%imshow(A)
 
-f=A; 
-thresh = graythresh(f(:,:,m));
-f = imbinarize(f(:,:,m), thresh);
-imshow(f)
-
-%%
 %Use the fibermetric algorithm to identify dendrites based on tubularity and then process 
 % image accordingly. This can take a while to run 
 
@@ -71,21 +61,15 @@ A=imfill(A, 16);
 A = imcomplement(A);
 
 
-%% 
 %Creates a structural object and uses it to dilate the image
 se = strel('disk', 1, 4);
 A = imdilate(A, se);
 
-
-%% 
 %Creates a skeleton of the image and thins it
-
 skel = bwskel(A, 'MinBranchLength', 1000);
 skel = imclose(skel,se);
 skel = bwmorph(A, 'thin', Inf); 
 
-
-%%
 %Geodesic distance transform 
 B = bwmorph(skel, 'branchpoints');
 E = bwmorph(skel, 'endpoints');
@@ -100,7 +84,6 @@ end
 skelD = skel - Dmask;
 imshow(skelD);
 
-%%
 % A bunch of other processing to get rid of spurious dendrites that don't
 % fit our criteria
 figure(6)
@@ -110,8 +93,9 @@ skelD = bwmorph(skelD, 'bridge', 5);
 skelD = bwmorph(skelD, 'spur');
 skelD = bwmorph(skelD, 'hbreak');
 title('Here is a comparison between our final map and the original image')
-imshowpair(skelD, img, 'montage');
-%% Let's also get some useful data out of this
+%imshowpair(skelD, img, 'montage');
+
+% Let's also get some useful data out of this
 B = bwmorph(skelD, 'branchpoints');
 figure, imshowpair(B, skelD, 'montage');
 B = bwmorph(B, 'close', 10);
@@ -123,23 +107,24 @@ B = bwmorph(B, 'hbreak');
 imshow(B);
 statsBranches = regionprops('table',B,'Centroid', 'Area');
 imshowpair(skelD, B, 'montage');
-%% This gives you the number of branchpoints as a good measure of 
+
+% This gives you the number of branchpoints as a good measure of 
 % dendritic arborisation that is commonly used in neurobiology 
 disp('number of branchpoints = ') 
 logical = statsBranches.Area(statsBranches.Area < 2);
 disp(sum(logical==1));
 
-%% %% Our next goal is to find some way of quanitfying dendiritic arborization in a way that might be useful to researchers 
+% Our next goal is to find some way of quanitfying dendiritic arborization in a way that might be useful to researchers 
 while(1)
-    neuriteask=input('Do you want to select a neurite?, Y/N [Y]: ','s')
-    scale = input('Do you want to select a scale factor, default: pixels ')
- if isempty(scale)
-     scale =1;
- end
-if strcmpi(neuriteask, 'n')
+    %neuriteask=input('Do you want to select a neurite?, Y/N [Y]: ','s')
+    neuritetask = menu('Do you want to select a neurite?', 'Yes', 'No')
+    scale = menu('Do you want to select a scale factor', 'default')
+
+if neuritetask == 0
 break
 end
-figure(10)
+
+%figure(10)
 img = imshow(skelD);
 roi = drawassisted(img,'Color','r', 'Closed', false);
 skeletonmask = createMask(roi);
@@ -150,8 +135,7 @@ Neurite_length1 = statsmask.Perimeter/2 .* scale
 
 end
 
-
-%% Our next goal is to find some way of quanitfying dendiritic arborization in a way that might be useful to researchers 
+% Our next goal is to find some way of quanitfying dendiritic arborization in a way that might be useful to researchers 
 %Let's make a GUI for this: Credit to mathworks for some of this code
 sz = size(skeletonmask);
 myData.Units = 'pixels';
