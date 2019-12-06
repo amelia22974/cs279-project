@@ -85,3 +85,4 @@ function scatterOutput = CLC(img1,pic2,scale,numCol, ...
     else
         scatterOutput = [{data},{[]}];
     end
+% Credit for some of this code goes to Mathworks and cytoflurogram extension of the MATLAB Image Processing Toolbox 
