@@ -17,7 +17,9 @@ The repository includes:
 
 Package Requirements in MATLAB:
 - Image Processing Toolbox
-- Machine Learning Toolbox
-- Fiji with the MIJI plugin 
+- Statistics and Machine Learning Toolbox
+- Fiji with the MIJI plugin in order to corroborate the sholl analysis outputs. 
+  Please note that we recommend the December 2015 version of Fiji and runnning the 
+  macros in MATLAB. 
 
 We also present a final report explaining the background of algorithms used and result.
