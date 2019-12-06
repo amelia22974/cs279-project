@@ -16,7 +16,7 @@ The repository includes:
 - archive folder: miscellaneous files from our work up until the final output including Python scripts, past MATLAB scripts, etc.
 
 
-Package Requirements in MATLAB:
+Package Requirements in MATLAB (version 2019a):
 - Image Processing Toolbox
 - Statistics and Machine Learning Toolbox
 - Fiji with the MIJI plugin in order to corroborate the sholl analysis outputs. 
