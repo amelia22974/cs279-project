@@ -18,5 +18,6 @@ The repository includes:
 Package Requirements in MATLAB:
 - Image Processing Toolbox
 - Machine Learning Toolbox
+- Fiji with the MIJI plugin 
 
 We also present a final report explaining the background of algorithms used and result.
