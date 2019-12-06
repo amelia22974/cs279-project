@@ -8,7 +8,7 @@ img= imsharpen(img, 'Radius', 4, 'Amount', 1.5);
 A = img;
 imshow(img);
 
-color = menu('What color are the puncta you wish to quantify?','Red', 'Green','Blue');
+color = menu('What is the cell-fill marker in your image?','Red', 'Green','Blue');
 
 %Select your channels here. We've eliminates irrelevant ones. This is done
 %manually as of now
