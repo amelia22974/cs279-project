@@ -1,4 +1,4 @@
-# cs279-project
+# CS279- Final Project: Automated Puncta Quantification and Neurite Mapping for Fluorescent Imaging in Neurons
 
 This folder contains work done by Amelia Woodward (SUNET ID: ameliawd) and Sid Dhawan (SUNET ID: sidsd27) for the CS279 Final Project.
 
