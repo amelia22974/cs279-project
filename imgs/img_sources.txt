@@ -1,0 +1,10 @@
+Image Sources by URL -->
+
+Trial 1: https://www.biocompare.com/Product-Reviews/150276-Best-PSD95-antibody-for-dissociated-neurons/
+Trial 2:http://www.neurocytolab.org/gallery/
+Trial 3:https://biotium.com/technology/cellular-stains/neuronal-probes/
+Trial 4:https://www.acris-antibodies.com/target/dlg4-antibody-psd95-antibody.htm
+Trial 5: https://www.researchgate.net/figure/mmunolabeling-of-neurons-isolated-from-dorsal-root-ganglia-and-cultured-on-coverslip-for_fig5_42256167
+Trial 6: http://www.cdb.riken.jp/jp/01_about/annual_reports/2004/flashhelp/fig/lab1_07fig2.htm
+Trial 7:https://www.bioopticsworld.com/bioimaging/fluorescence/article/16430989/fluorescent-probes-light-up-live-synapses-show-how-memories-form
+Trial 8: https://www.sysy.com/products/psd95/facts-124011.php
